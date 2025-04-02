@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Web Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        #chatBox {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            height: 500px;
+            overflow-y: scroll;
+        }
+        .user-message {
+            color: blue;
+        }
+        .bot-message {
+            color: green;
+        }
+        .input-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 15%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chatBox"></div>
+
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type your message here...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            let userMessage = document.getElementById('userInput').value;
+            if (!userMessage) return;
+
+            // Add user message to chat
+            addMessageToChat(userMessage, 'user-message');
+
+            // Clear input field
+            document.getElementById('userInput').value = '';
+
+            // Send message to the server and get response
+            let botResponse = await getBotResponse(userMessage);
+
+            // Add bot response to chat
+            addMessageToChat(botResponse, 'bot-message');
+        }
+
+        function addMessageToChat(message, className) {
+            let chatBox = document.getElementById('chatBox');
+            let messageElement = document.createElement('p');
+            messageElement.classList.add(className);
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+        }
+
+        async function getBotResponse(userMessage) {
+            const apiKey = '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'; // Replace with your OpenAI API Key
+            const endpoint = 'https://api.openai.com/v1/chat/completions';
+            
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${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}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { "role": "system", "content": "You are a helpful assistant that replies in Bengali and Hindi." },
+                        { "role": "user", "content": userMessage }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+    </script>
+
+</body>
+</html>
